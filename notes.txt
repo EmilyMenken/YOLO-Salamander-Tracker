@@ -1,0 +1,13 @@
+Metrics:
+ * Position heatmap. A heat overlay showing where salamanders spent the most time across the whole video.
+ * Time on screen. Per salamander, how long they were visible.
+
+The last several require tracking individual salamanders across frames. 
+Ultralytics has a model.track() method that handles ID assignment, so this is easier than you might think.
+
+Phase 1: Build your dataset
+Phase 2: Train the model
+Phase 3: Run inference
+Phase 4: Choose your metrics and define your data contract
+Phase 5: Build the app
+Phase 6: Compare to color masking
