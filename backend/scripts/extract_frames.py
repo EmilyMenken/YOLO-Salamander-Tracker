@@ -1,8 +1,9 @@
 import cv2
 import os
 
-VIDEO_PATH = "../../dataset/raw_videos/salamanderSwimmingOffFrame.mp4"
+VIDEO_PATH = "../../dataset/raw_videos/salamanderStuck.mp4"
 OUTPUT_DIR = "../../dataset/extracted_frames"
+FILENAME = "salamaderStuck"
 
 FRAME_SKIP = 15  # Save every 15th frame
 
@@ -20,7 +21,7 @@ while True:
         break
 
     if frame_count % FRAME_SKIP == 0:
-        filename = f"frame_{saved_count:04d}.jpg"
+        filename = f"frame_{FILENAME}_{saved_count:04d}.jpg"
         filepath = os.path.join(OUTPUT_DIR, filename)
 
         cv2.imwrite(filepath, frame)
