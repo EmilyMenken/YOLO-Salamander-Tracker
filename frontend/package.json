@@ -1,13 +1,15 @@
 {
-  "name": "frontend",
+  "name": "yolo-salamander-tracker",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://yourusername.github.io/YOLO-Salamander-Tracker/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "react": "^19.2.5",
