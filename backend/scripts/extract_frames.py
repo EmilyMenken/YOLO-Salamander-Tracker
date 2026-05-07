@@ -1,7 +1,7 @@
 import cv2
 import os
 
-VIDEO_PATH = "../../dataset/raw_videos/salamanderWalkingInWoods.mp4"
+VIDEO_PATH = "../../dataset/raw_videos/salamanderSwimmingOffFrame.mp4"
 OUTPUT_DIR = "../../dataset/extracted_frames"
 
 FRAME_SKIP = 15  # Save every 15th frame
