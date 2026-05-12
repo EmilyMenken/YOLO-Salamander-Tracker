@@ -1,3 +1,4 @@
 node_modules
 dataset/extracted_frames/
 yolo-salamander-tracking
+runs
