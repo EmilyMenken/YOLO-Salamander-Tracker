@@ -44,5 +44,5 @@ async def upload_video(file: UploadFile = File(...)):
 
 @app.get("/video/{job_id}")
 def get_video(job_id: str):
-    path = f"outputs/{job_id}_output_web.mp4"
+    path = f"{OUTPUT_DIR}/{job_id}_output_web.mp4"
     return FileResponse(path, media_type="video/mp4")

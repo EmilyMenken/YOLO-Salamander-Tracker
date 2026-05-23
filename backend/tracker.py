@@ -4,10 +4,9 @@ from ultralytics import YOLO
 from collections import defaultdict
 import subprocess
 
-
-model = YOLO("models/salamander.pt")
-
 def process_video(input_path: str, output_path: str, progress: dict) -> dict:
+    model = YOLO("models/salamander.pt")
+    
     cap = cv2.VideoCapture(input_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -19,7 +18,7 @@ def process_video(input_path: str, output_path: str, progress: dict) -> dict:
     trails = defaultdict(list)
     time_on_screen = defaultdict(int)
     heatmap = np.zeros((h, w), dtype=np.float32)
-    detection_counts = []
+    frame_id_log = []
 
     frame_idx = 0
     while cap.isOpened():
@@ -30,7 +29,7 @@ def process_video(input_path: str, output_path: str, progress: dict) -> dict:
         progress["progress"] = round((frame_idx / max(total_frames, 1)) * 100, 1)
 
         results = model.track(frame, persist=True, verbose=False)
-        count = 0
+        frame_ids = []
 
         if results[0].boxes is not None:
             boxes = results[0].boxes
@@ -54,9 +53,9 @@ def process_video(input_path: str, output_path: str, progress: dict) -> dict:
                 if len(pts) > 1:
                     cv2.polylines(frame, [pts], False, (255, 165, 0), 2)
 
-                count += 1
+                frame_ids.append(tid)
 
-        detection_counts.append(count)
+        frame_id_log.append(frame_ids)
         out.write(frame)
         frame_idx += 1
 
@@ -69,10 +68,19 @@ def process_video(input_path: str, output_path: str, progress: dict) -> dict:
                 for i in range(1, len(pts)))
         distances[str(tid)] = round(d, 2)
 
+    time_on_screen = {k: v for k, v in time_on_screen.items() if v >= 3}
+    distances = {k: v for k, v in distances.items() if int(k) in time_on_screen}
+
+    valid_ids = set(time_on_screen.keys())
+    detection_counts = [
+        sum(1 for tid in frame_ids if tid in valid_ids)
+        for frame_ids in frame_id_log
+    ]
+
     browser_path = output_path.replace(".mp4", "_web.mp4")
     subprocess.run([
         "ffmpeg", "-i", output_path, "-vcodec", "libx264", "-acodec", "aac", browser_path
-    ], check=True)    
+    ], check=True)
 
     return {
         "fps": fps,
