@@ -1,3 +1,4 @@
+import os
 import cv2
 import numpy as np
 from ultralytics import YOLO
@@ -6,7 +7,15 @@ import subprocess
 
 
 def process_video(input_path: str, output_path: str, job: dict) -> dict:
-    model = YOLO("models/salamander.pt")
+
+    # absolute-safe model path
+    MODEL_PATH = os.path.join(
+        os.path.dirname(__file__),
+        "models",
+        "salamander.pt"
+    )
+
+    model = YOLO(MODEL_PATH)
 
     cap = cv2.VideoCapture(input_path)
 
@@ -35,7 +44,7 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
         if not ret:
             break
 
-        # update live progress
+        # live progress updates
         job["percent"] = int(
             ((frame_idx + 1) / max(total_frames, 1)) * 100
         )
@@ -43,7 +52,8 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
         results = model.track(
             frame,
             persist=True,
-            verbose=False
+            verbose=False,
+            conf=0.25
         )
 
         frame_ids = []
@@ -52,6 +62,7 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
             boxes = results[0].boxes
 
             for box in boxes:
+
                 if box.id is None:
                     continue
 
@@ -64,6 +75,7 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
 
                 conf = float(box.conf[0])
 
+                # bounding box
                 cv2.rectangle(
                     frame,
                     (x1, y1),
@@ -72,6 +84,7 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
                     2
                 )
 
+                # label
                 cv2.putText(
                     frame,
                     f"ID {tid} {conf:.2f}",
@@ -82,6 +95,7 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
                     2
                 )
 
+                # track movement
                 trails[tid].append((cx, cy))
 
                 time_on_screen[tid] += 1
@@ -116,9 +130,11 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
     cap.release()
     out.release()
 
+    # distance calculations
     distances = {}
 
     for tid, pts in trails.items():
+
         d = sum(
             np.linalg.norm(
                 np.array(pts[i]) - np.array(pts[i - 1])
@@ -128,6 +144,7 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
 
         distances[str(tid)] = round(d, 2)
 
+    # remove tiny accidental detections
     time_on_screen = {
         k: v for k, v in time_on_screen.items()
         if v >= 3
@@ -145,6 +162,7 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
         for frame_ids in frame_id_log
     ]
 
+    # browser-compatible mp4 conversion
     browser_path = output_path.replace(".mp4", "_web.mp4")
 
     subprocess.run([
@@ -158,6 +176,7 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
         browser_path
     ], check=True)
 
+    # custom metric
     average_distance = 0
 
     if len(distances) > 0:
