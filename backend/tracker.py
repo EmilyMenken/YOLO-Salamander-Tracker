@@ -35,13 +35,16 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
         if not ret:
             break
 
-        # update shared progress state
-        job["progress"] = round(
-            (frame_idx / max(total_frames, 1)) * 100,
-            1
+        # update live progress
+        job["percent"] = int(
+            ((frame_idx + 1) / max(total_frames, 1)) * 100
         )
 
-        results = model.track(frame, persist=True, verbose=False)
+        results = model.track(
+            frame,
+            persist=True,
+            verbose=False
+        )
 
         frame_ids = []
 
@@ -56,7 +59,8 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
 
                 x1, y1, x2, y2 = map(int, box.xyxy[0])
 
-                cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+                cx = (x1 + x2) // 2
+                cy = (y1 + y2) // 2
 
                 conf = float(box.conf[0])
 
@@ -87,7 +91,10 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
                     max(0, cx - 15):cx + 15
                 ] += 1
 
-                pts = np.array(trails[tid][-40:], dtype=np.int32)
+                pts = np.array(
+                    trails[tid][-40:],
+                    dtype=np.int32
+                )
 
                 if len(pts) > 1:
                     cv2.polylines(
