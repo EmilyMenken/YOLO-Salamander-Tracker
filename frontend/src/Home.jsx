@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import VideoPlayer from "./VideoPlayer"
 import MetricsPanel from "./MetricsPanel"
+import "./App.css"
 
 export default function Home() {
   const [jobId, setJobId] = useState(null)
