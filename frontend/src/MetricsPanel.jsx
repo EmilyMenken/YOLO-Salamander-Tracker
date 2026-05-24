@@ -1,6 +1,12 @@
 export default function MetricsPanel({ metrics }) {
   if (!metrics) return null
-  const { detection_counts, time_on_screen, total_distance_px, fps } = metrics
+const {
+  detection_counts,
+  time_on_screen,
+  total_distance_px,
+  average_distance_px,
+  fps
+} = metrics
 
   return (
     <div style={{ marginTop: 20 }}>
@@ -30,6 +36,8 @@ export default function MetricsPanel({ metrics }) {
 
       <h3>Peak Detections in a Single Frame</h3>
       <p>{Math.max(...detection_counts)} salamander(s)</p>
+      <h3>Average Distance Traveled</h3>
+      <p>{average_distance_px} px</p>
     </div>
   )
 }

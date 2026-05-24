@@ -158,6 +158,14 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
         browser_path
     ], check=True)
 
+    average_distance = 0
+
+    if len(distances) > 0:
+        average_distance = round(
+            sum(distances.values()) / len(distances),
+            2
+        )
+
     return {
         "fps": fps,
         "total_frames": frame_idx,
@@ -166,4 +174,5 @@ def process_video(input_path: str, output_path: str, job: dict) -> dict:
             str(k): v for k, v in time_on_screen.items()
         },
         "total_distance_px": distances,
+        "average_distance_px": average_distance,
     }
